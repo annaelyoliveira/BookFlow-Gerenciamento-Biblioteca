@@ -19,16 +19,6 @@ Projeto de uma **Biblioteca** desenvolvido em Java, aplicando os conceitos de **
 
 ---
 
-## 👩‍💻 Como rodar o projeto
-
-1. Clone este repositório:
-    ```bash
-    git clone https://github.com/seu-usuario/nome-do-repo.git
-    ```
-2. Abra o projeto em sua IDE Java preferida (Eclipse, IntelliJ, VSCode, etc).
-3. Compile e execute a classe `Main`.
-
----
 
 ## 💡 Conceitos de POO aplicados
 
