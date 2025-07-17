@@ -7,6 +7,7 @@ public class Revista extends Obra {
     }
 
     public int getTempoEmprestimo(){
+
         return 3;
     }
 }

@@ -7,6 +7,7 @@ public class Artigo extends Obra{
     }
 
     public int getTempoEmprestimo(){
+
         return 2;
     }
 }
