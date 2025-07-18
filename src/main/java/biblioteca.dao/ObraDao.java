@@ -1,39 +1,96 @@
+// src/main/java/biblioteca/dao/ObraDao.java
 package biblioteca.dao;
 
+import biblioteca.model.Artigo;
+import biblioteca.model.Livro;
 import biblioteca.model.Obra;
+import biblioteca.model.Revista;
 import biblioteca.model.Persistivel;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+// import com.google.gson.typeadapters.RuntimeTypeAdapterFactory; // Remover esta linha
+import biblioteca.util.RuntimeTypeAdapterFactory; // <<-- Adicionar esta importação (ajuste o pacote se colocou em 'dao')
 
-import java.io.FileWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.lang.reflect.Type;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ObraDao implements Persistivel<Obra> {
 
     private List<Obra> obras;
-    private final String arquivo = "obras.json";
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final String NOME_ARQUIVO = "obras.json";
+
+    // Configurar o RuntimeTypeAdapterFactory para lidar com polimorfismo
+    // "type" será o campo adicionado/usado no JSON para identificar o subtipo.
+    private static final RuntimeTypeAdapterFactory<Obra> obraAdapterFactory =
+            RuntimeTypeAdapterFactory
+                    .of(Obra.class, "type") // Campo discriminador: "type"
+                    .registerSubtype(Livro.class, "livro")   // Mapeia Livro.class para o valor "livro" no campo "type"
+                    .registerSubtype(Revista.class, "revista") // Mapeia Revista.class para o valor "revista"
+                    .registerSubtype(Artigo.class, "artigo"); // Mapeia Artigo.class para o valor "artigo"
+
+    // Modificar a inicialização do Gson para incluir o adapter factory
+    private final Gson gsonEscrita = new GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapterFactory(obraAdapterFactory) // Registrar sua própria fábrica
+            .create();
+
+    private final Gson gsonLeitura = new GsonBuilder()
+            .registerTypeAdapterFactory(obraAdapterFactory) // Registrar sua própria fábrica também para leitura
+            .create();
 
     public ObraDao() {
         this.obras = carregarDoArquivo();
     }
 
+    // ... (o restante dos métodos da ObraDao permanece o mesmo) ...
+
+    private List<Obra> carregarDoArquivo() {
+        try (FileReader reader = new FileReader(NOME_ARQUIVO)) {
+            Type tipoListaObra = new TypeToken<ArrayList<Obra>>() {}.getType();
+            List<Obra> obrasCarregadas = gsonLeitura.fromJson(reader, tipoListaObra);
+            System.out.println("Obras carregadas do arquivo " + NOME_ARQUIVO);
+            return obrasCarregadas != null ? obrasCarregadas : new ArrayList<>();
+        } catch (FileNotFoundException e) {
+            System.out.println("Arquivo " + NOME_ARQUIVO + " não encontrado. Criando uma nova lista de obras.");
+            return new ArrayList<>();
+        } catch (IOException e) {
+            System.err.println("Erro ao carregar obras do arquivo " + NOME_ARQUIVO + ": " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    private void salvarNoArquivo() {
+        try (FileWriter writer = new FileWriter(NOME_ARQUIVO)) {
+            gsonEscrita.toJson(obras, writer);
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar obras no arquivo " + NOME_ARQUIVO + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     @Override
-    public void adicionar(Obra obra) {
-        obras.add(obra);
+    public void adicionar(Obra objeto) {
+        if (buscarPorCodigo(objeto.getCodigo()) != null) {
+            System.out.println("Erro: Já existe uma obra com o código " + objeto.getCodigo() + ". Não foi possível adicionar.");
+            return;
+        }
+        this.obras.add(objeto);
         salvarNoArquivo();
-        System.out.println("Obra adicionada com sucesso.");
+        System.out.println("Obra \"" + objeto.getTitulo() + "\" (Código: " + objeto.getCodigo() + ") adicionada com sucesso!");
     }
 
     @Override
     public Obra buscarPorCodigo(int codigo) {
-        for (Obra obra : obras) {
+        for (Obra obra : this.obras) {
             if (obra.getCodigo() == codigo) {
                 System.out.println("Obra encontrada: " + obra.getTitulo());
                 return obra;
@@ -44,52 +101,36 @@ public class ObraDao implements Persistivel<Obra> {
     }
 
     @Override
-    public boolean remover(int codigo) {
-        Obra obraParaRemover = buscarPorCodigo(codigo);
-        if (obraParaRemover != null) {
-            obras.remove(obraParaRemover);
-            salvarNoArquivo();
-            System.out.println("Obra removida com sucesso!");
-            return true;
+    public void atualizar(Obra objeto) {
+        for (int i = 0; i < this.obras.size(); i++) {
+            if (this.obras.get(i).getCodigo() == objeto.getCodigo()) {
+                this.obras.set(i, objeto);
+                salvarNoArquivo();
+                System.out.println("Obra \"" + objeto.getTitulo() + "\" (Código: " + objeto.getCodigo() + ") atualizada com sucesso!");
+            }
         }
-        System.out.println("Erro ao remover: obra com código " + codigo + " não encontrada.");
+        System.out.println("Obra com código " + objeto.getCodigo() + " não encontrada para atualização.");
+    }
+
+    @Override
+    public boolean remover(int codigo) {
+        Iterator<Obra> iterator = this.obras.iterator();
+        while (iterator.hasNext()) {
+            Obra obra = iterator.next();
+            if (obra.getCodigo() == codigo) {
+                iterator.remove();
+                salvarNoArquivo();
+                System.out.println("Obra removida com sucesso!");
+                return true;
+            }
+        }
+        System.out.println("Erro: Obra com código " + codigo + " não encontrada para remoção.");
         return false;
     }
 
     @Override
     public List<Obra> listar() {
-        return new ArrayList<>(obras);
-    }
-
-    public void atualizar(Obra obraAtualizada) {
-        for (int i = 0; i < obras.size(); i++) {
-            if (obras.get(i).getCodigo() == obraAtualizada.getCodigo()) {
-                obras.set(i, obraAtualizada);
-                salvarNoArquivo();
-                System.out.println("Obra atualizada com sucesso!");
-                return;
-            }
-        }
-        System.out.println("Obra não encontrada para atualização.");
-    }
-
-    private void salvarNoArquivo() {
-        try (FileWriter writer = new FileWriter(arquivo)) {
-            gson.toJson(obras, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private List<Obra> carregarDoArquivo() {
-        try (FileReader reader = new FileReader(arquivo)) {
-            Type listType = new TypeToken<ArrayList<Obra>>() {}.getType();
-            System.out.println("Obras carregadas do arquivo " + arquivo);
-            return gson.fromJson(reader, listType);
-        } catch (IOException e) {
-            System.out.println("Arquivo não encontrado ou erro ao ler. Criando nova lista de obras.");
-            return new ArrayList<>();
-        }
+        System.out.println("Listando todas as obras (" + this.obras.size() + " encontradas):");
+        return new ArrayList<>(this.obras);
     }
 }
-
