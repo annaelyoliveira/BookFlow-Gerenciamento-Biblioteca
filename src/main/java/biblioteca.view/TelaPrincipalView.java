@@ -12,15 +12,14 @@ public class TelaPrincipalView extends JFrame {
     private Usuario usuarioLogado;
     private JPanel painelConteudo; // Onde as telas de funcionalidade serão exibidas
 
-    // Declaração dos botões como campos da classe para poder controlá-los
     private JButton btnCadastrarObra;
     private JButton btnCadastrarUsuario;
     private JButton btnEmprestarObra;
     private JButton btnDevolverObra;
-    private JButton btnListarObras;
+    private JButton btnListarObras; // Botão de listar obras
     private JButton btnRegistrarPagamento;
     private JButton btnRelatorios;
-    private JButton btnSair; // Botão para sair
+    private JButton btnSair;
 
     public TelaPrincipalView(Usuario usuario) {
         super("Sistema de Gerenciamento de Biblioteca - " + usuario.getNome() + " (" + usuario.getTipoUsuario() + ")");
@@ -45,22 +44,20 @@ public class TelaPrincipalView extends JFrame {
         painelMenu.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         painelMenu.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        // Inicialização dos botões
         btnCadastrarObra = new JButton("Cadastrar Obra");
         btnCadastrarUsuario = new JButton("Cadastrar Usuário");
         btnEmprestarObra = new JButton("Empréstimo de Obra");
         btnDevolverObra = new JButton("Devolução de Obra");
-        btnListarObras = new JButton("Listar / Pesquisar Obras");
+        btnListarObras = new JButton("Listar / Pesquisar Obras"); // Inicialização do botão
         btnRegistrarPagamento = new JButton("Registrar Pagamento de Multa");
         btnRelatorios = new JButton("Gerar Relatórios");
         btnSair = new JButton("Sair");
 
-        // Adiciona os botões ao painel de menu com alinhamento e espaçamento
         adicionarBotaoAoMenu(painelMenu, btnCadastrarObra);
         adicionarBotaoAoMenu(painelMenu, btnCadastrarUsuario);
         adicionarBotaoAoMenu(painelMenu, btnEmprestarObra);
         adicionarBotaoAoMenu(painelMenu, btnDevolverObra);
-        adicionarBotaoAoMenu(painelMenu, btnListarObras);
+        adicionarBotaoAoMenu(painelMenu, btnListarObras); // Adição do botão ao menu
         adicionarBotaoAoMenu(painelMenu, btnRegistrarPagamento);
         adicionarBotaoAoMenu(painelMenu, btnRelatorios);
         painelMenu.add(Box.createVerticalGlue());
@@ -68,16 +65,13 @@ public class TelaPrincipalView extends JFrame {
 
         add(painelMenu, BorderLayout.WEST);
 
-        // --- Painel de Conteúdo Principal ---
         painelConteudo = new JPanel();
         painelConteudo.setLayout(new BorderLayout());
         painelConteudo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         add(painelConteudo, BorderLayout.CENTER);
 
-        // --- Lógica para controlar a visibilidade/habilitação dos botões ---
         controlarAcessos();
 
-        // --- Listeners dos Botões ---
         btnSair.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja sair?", "Confirmar Saída", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
@@ -85,15 +79,29 @@ public class TelaPrincipalView extends JFrame {
             }
         });
 
-        // ActionListener para o botão Cadastrar Obra
         btnCadastrarObra.addActionListener(e -> {
-            mostrarPainel(new CadastroObraPanel()); // Cria e mostra o painel de cadastro de obra
+            mostrarPainel(new CadastroObraPanel());
+        });
+
+        btnCadastrarUsuario.addActionListener(e -> {
+            mostrarPainel(new CadastroUsuarioPanel());
+        });
+
+        btnListarObras.addActionListener(e -> {
+            mostrarPainel(new ListarObrasPanel());
+        });
+
+        btnEmprestarObra.addActionListener(e -> {
+            mostrarPainel(new EmprestarObraPanel());
+        });
+
+        btnDevolverObra.addActionListener(e -> {
+            mostrarPainel(new DevolverObraPanel());
         });
 
         setVisible(true);
     }
 
-    // Método auxiliar para adicionar botões ao menu com formatação
     private void adicionarBotaoAoMenu(JPanel menuPanel, JButton button) {
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
         button.setMaximumSize(new Dimension(200, 40));
@@ -103,14 +111,9 @@ public class TelaPrincipalView extends JFrame {
         menuPanel.add(Box.createRigidArea(new Dimension(0, 10)));
     }
 
-    /**
-     * Controla quais funcionalidades o usuário logado pode acessar
-     * [cite_start]com base no seu tipo (Administrador, Bibliotecario, Estagiario). [cite: 35, 36, 37, 38]
-     */
     private void controlarAcessos() {
         String tipo = usuarioLogado.getTipoUsuario();
 
-        // Desabilita todos os botões por padrão, e habilita apenas os permitidos
         btnCadastrarObra.setEnabled(false);
         btnCadastrarUsuario.setEnabled(false);
         btnEmprestarObra.setEnabled(false);
@@ -121,7 +124,6 @@ public class TelaPrincipalView extends JFrame {
 
         switch (tipo) {
             case "Administrador":
-
                 btnCadastrarObra.setEnabled(true);
                 btnCadastrarUsuario.setEnabled(true);
                 btnEmprestarObra.setEnabled(true);
@@ -131,7 +133,6 @@ public class TelaPrincipalView extends JFrame {
                 btnRelatorios.setEnabled(true);
                 break;
             case "Bibliotecario":
-
                 btnEmprestarObra.setEnabled(true);
                 btnDevolverObra.setEnabled(true);
                 btnListarObras.setEnabled(true);
@@ -148,10 +149,6 @@ public class TelaPrincipalView extends JFrame {
         btnSair.setEnabled(true);
     }
 
-    /**
-     * Método auxiliar para trocar o conteúdo do painel central da tela principal.
-     * @param novoPainel O JPanel que será exibido.
-     */
     private void mostrarPainel(JPanel novoPainel) {
         painelConteudo.removeAll();
         painelConteudo.add(novoPainel, BorderLayout.CENTER);
@@ -159,12 +156,8 @@ public class TelaPrincipalView extends JFrame {
         painelConteudo.repaint();
     }
 
-    // Método main temporário para testar a TelaPrincipal diretamente (remover no final)
     public static void main(String[] args) {
         Usuario usuarioTeste = new Usuario("Admin Teste", 9999, "Administrador", "1234-5678", "teste@admin.com", "admin123");
-        // Usuario usuarioTeste = new Usuario("Biblio Teste", 8888, "Bibliotecario", "1234-5678", "teste@biblio.com", "biblio123");
-        // Usuario usuarioTeste = new Usuario("Estagi Teste", 7777, "Estagiario", "1234-5678", "teste@estag.com", "estag123");
-
         SwingUtilities.invokeLater(() -> new TelaPrincipalView(usuarioTeste));
     }
 }
