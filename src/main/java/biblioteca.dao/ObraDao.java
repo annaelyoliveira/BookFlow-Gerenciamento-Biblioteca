@@ -1,4 +1,4 @@
-// src/main/java/biblioteca/dao/ObraDao.java
+
 package biblioteca.dao;
 
 import biblioteca.model.Artigo;
@@ -10,8 +10,7 @@ import biblioteca.model.Persistivel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-// import com.google.gson.typeadapters.RuntimeTypeAdapterFactory; // Remover esta linha
-import biblioteca.util.RuntimeTypeAdapterFactory; // <<-- Adicionar esta importação (ajuste o pacote se colocou em 'dao')
+import biblioteca.util.RuntimeTypeAdapterFactory;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -25,32 +24,30 @@ import java.util.List;
 public class ObraDao implements Persistivel<Obra> {
 
     private List<Obra> obras;
-    private final String NOME_ARQUIVO = "obras.json";
+    private final String NOME_ARQUIVO = "data/obras.json";
 
-    // Configurar o RuntimeTypeAdapterFactory para lidar com polimorfismo
-    // "type" será o campo adicionado/usado no JSON para identificar o subtipo.
+
+
     private static final RuntimeTypeAdapterFactory<Obra> obraAdapterFactory =
             RuntimeTypeAdapterFactory
-                    .of(Obra.class, "type") // Campo discriminador: "type"
-                    .registerSubtype(Livro.class, "livro")   // Mapeia Livro.class para o valor "livro" no campo "type"
-                    .registerSubtype(Revista.class, "revista") // Mapeia Revista.class para o valor "revista"
-                    .registerSubtype(Artigo.class, "artigo"); // Mapeia Artigo.class para o valor "artigo"
+                    .of(Obra.class, "type")
+                    .registerSubtype(Livro.class, "livro")
+                    .registerSubtype(Revista.class, "revista")
+                    .registerSubtype(Artigo.class, "artigo");
 
-    // Modificar a inicialização do Gson para incluir o adapter factory
     private final Gson gsonEscrita = new GsonBuilder()
             .setPrettyPrinting()
-            .registerTypeAdapterFactory(obraAdapterFactory) // Registrar sua própria fábrica
+            .registerTypeAdapterFactory(obraAdapterFactory)
             .create();
 
     private final Gson gsonLeitura = new GsonBuilder()
-            .registerTypeAdapterFactory(obraAdapterFactory) // Registrar sua própria fábrica também para leitura
+            .registerTypeAdapterFactory(obraAdapterFactory)
             .create();
 
     public ObraDao() {
         this.obras = carregarDoArquivo();
     }
 
-    // ... (o restante dos métodos da ObraDao permanece o mesmo) ...
 
     private List<Obra> carregarDoArquivo() {
         try (FileReader reader = new FileReader(NOME_ARQUIVO)) {

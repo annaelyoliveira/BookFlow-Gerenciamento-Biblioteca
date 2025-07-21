@@ -16,7 +16,7 @@ import java.util.List;
 public class UsuarioDao implements Persistivel<Usuario> {
 
     private List<Usuario> usuarios;
-    private final String NOME_ARQUIVO = "usuarios.json";
+    private final String NOME_ARQUIVO = "data/usuarios.json";
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public UsuarioDao() {
