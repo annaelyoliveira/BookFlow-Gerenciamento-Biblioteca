@@ -1,6 +1,6 @@
 package biblioteca.model;
 
-public interface EmprestimoDeObras {
+public interface Emprestavel {
 
     boolean verificarDisponibilidade();
     void emprestar();
