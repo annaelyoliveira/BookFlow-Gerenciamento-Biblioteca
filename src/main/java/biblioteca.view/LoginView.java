@@ -82,10 +82,6 @@ public class LoginView extends JFrame {
         setVisible(true);
     }
 
-    /**
-     * Método para realizar a autenticação do usuário.
-     * Captura os dados da tela, chama o controlador e lida com o resultado.
-     */
     private void autenticarUsuario() {
         try {
             int matricula = Integer.parseInt(campoMatricula.getText());
@@ -99,11 +95,10 @@ public class LoginView extends JFrame {
                 mensagemErro.setText("Login bem-sucedido!");
                 JOptionPane.showMessageDialog(this, "Bem-vindo(a), " + usuarioAutenticado.getNome() + "!");
 
-                // TODO: Aqui você fecharia a janela de login e abriria a Tela Principal do sistema
-                // Exemplo:
-                // TelaPrincipal telaPrincipal = new TelaPrincipal(usuarioAutenticado);
-                // telaPrincipal.setVisible(true);
-                dispose(); // Fecha a janela de login atual
+                TelaPrincipalView telaPrincipal = new TelaPrincipalView(usuarioAutenticado);
+                telaPrincipal.setVisible(true);
+
+                dispose();
             } else {
                 mensagemErro.setForeground(Color.RED); // Cor vermelha para erro
                 mensagemErro.setText("Matrícula ou senha inválidos.");
@@ -114,9 +109,7 @@ public class LoginView extends JFrame {
         }
     }
 
-    /**
-     * Método main para iniciar a aplicação e a tela de login.
-     */
+
     public static void main(String[] args) {
         // Garante que a interface gráfica seja criada e atualizada na Thread de Despacho de Eventos (EDT)
         SwingUtilities.invokeLater(new Runnable() {
