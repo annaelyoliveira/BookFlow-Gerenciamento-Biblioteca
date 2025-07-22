@@ -96,7 +96,7 @@ public class EmprestimoDao implements Persistivel<Emprestimo> {
     }
 
     @Override
-    public void atualizar(Emprestimo objeto) {
+    public boolean atualizar(Emprestimo objeto) {
         for (int i = 0; i < this.emprestimos.size(); i++) {
             if (this.emprestimos.get(i).getId() == objeto.getId()) {
                 this.emprestimos.set(i, objeto);
@@ -105,6 +105,7 @@ public class EmprestimoDao implements Persistivel<Emprestimo> {
             }
         }
         System.out.println("Empréstimo com ID " + objeto.getId() + " não encontrado para atualização.");
+        return false;
     }
 
     @Override
