@@ -43,15 +43,15 @@ public class ObraController {
     }
 
     public List<Obra> listarTodasObras() {
-        return obraDao.listar(); // Chama o método listar do DAO
+        return obraDao.listar();
     }
 
     public List<Obra> buscarObras(String termoPesquisa, String tipoPesquisa) {
         List<Obra> resultados = new ArrayList<>();
-        List<Obra> todasObras = obraDao.listar(); // Pega todas as obras do DAO
+        List<Obra> todasObras = obraDao.listar();
 
         if (termoPesquisa == null || termoPesquisa.trim().isEmpty()) {
-            return todasObras; // Retorna todas se o termo de pesquisa for vazio
+            return todasObras;
         }
 
         String termoLowerCase = termoPesquisa.toLowerCase();
@@ -70,7 +70,7 @@ public class ObraController {
                     }
                     break;
                 case "tipo":
-                    if (tipoPesquisa.toLowerCase().equals("tipo") && obra.getClass().getSimpleName().toLowerCase().contains(termoLowerCase)) {
+                    if (obra.getClass().getSimpleName().toLowerCase().contains(termoLowerCase)) {
                         adiciona = true;
                     }
                     break;
@@ -87,5 +87,4 @@ public class ObraController {
         }
         return resultados;
     }
-
 }

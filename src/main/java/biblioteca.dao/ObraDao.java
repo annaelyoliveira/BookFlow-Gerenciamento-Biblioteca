@@ -26,8 +26,6 @@ public class ObraDao implements Persistivel<Obra> {
     private List<Obra> obras;
     private final String NOME_ARQUIVO = "data/obras.json";
 
-
-
     private static final RuntimeTypeAdapterFactory<Obra> obraAdapterFactory =
             RuntimeTypeAdapterFactory
                     .of(Obra.class, "type")
@@ -98,7 +96,7 @@ public class ObraDao implements Persistivel<Obra> {
     }
 
     @Override
-    public void atualizar(Obra objeto) {
+    public boolean atualizar(Obra objeto) {
         for (int i = 0; i < this.obras.size(); i++) {
             if (this.obras.get(i).getCodigo() == objeto.getCodigo()) {
                 this.obras.set(i, objeto);
@@ -107,6 +105,7 @@ public class ObraDao implements Persistivel<Obra> {
             }
         }
         System.out.println("Obra com código " + objeto.getCodigo() + " não encontrada para atualização.");
+        return false;
     }
 
     @Override
