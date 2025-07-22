@@ -8,5 +8,5 @@ public interface Persistivel <T> {
     T buscarPorCodigo(int codigo);
     boolean remover(int codigo);
     List<T> listar();
-    void atualizar(T objeto);
+    boolean atualizar(T objeto);
 }
