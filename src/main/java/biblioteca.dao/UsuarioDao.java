@@ -6,56 +6,63 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.GsonBuilder;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class UsuarioDao implements Persistivel<Usuario> {
 
     private List<Usuario> usuarios;
     private final String NOME_ARQUIVO = "data/usuarios.json";
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gsonEscrita = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gsonLeitura = new Gson();
 
     public UsuarioDao() {
-        usuarios = carregarDoArquivo();
+        this.usuarios = carregarDoArquivo();
     }
 
     private List<Usuario> carregarDoArquivo() {
         try (FileReader reader = new FileReader(NOME_ARQUIVO)) {
             Type tipoLista = new TypeToken<ArrayList<Usuario>>() {}.getType();
-            return gson.fromJson(reader, tipoLista);
+            List<Usuario> usuariosCarregados = gsonLeitura.fromJson(reader, tipoLista);
+            System.out.println("Usuários carregados do arquivo " + NOME_ARQUIVO);
+            return usuariosCarregados != null ? usuariosCarregados : new ArrayList<>();
+        } catch (FileNotFoundException e) {
+            System.out.println("Arquivo " + NOME_ARQUIVO + " não encontrado. Iniciando com uma nova lista de usuários.");
+            return new ArrayList<>();
         } catch (IOException e) {
-            System.out.println("Erro ao carregar usuários do arquivo: " + e.getMessage());
+            System.err.println("Erro ao carregar usuários do arquivo " + NOME_ARQUIVO + ": " + e.getMessage());
+            e.printStackTrace();
             return new ArrayList<>();
         }
     }
 
     private void salvarNoArquivo() {
         try (FileWriter writer = new FileWriter(NOME_ARQUIVO)) {
-            gson.toJson(usuarios, writer);
+            gsonEscrita.toJson(usuarios, writer);
         } catch (IOException e) {
-            System.out.println("Erro ao salvar usuários no arquivo: " + e.getMessage());
+            System.err.println("Erro ao salvar usuários no arquivo " + NOME_ARQUIVO + ": " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     @Override
     public void adicionar(Usuario usuario) {
-        if (buscarPorCodigo(usuario.getMatricula()) != null) {
-            System.out.println("Já existe um usuário com a matrícula " + usuario.getMatricula());
-            return;
-        }
         this.usuarios.add(usuario);
         salvarNoArquivo();
-        System.out.println("Usuário adicionado com sucesso.");
+        System.out.println("Usuário \"" + usuario.getNome() + "\" (Matrícula: " + usuario.getMatricula() + ", Login: " + usuario.getLogin() + ") adicionado com sucesso.");
     }
 
     @Override
     public Usuario buscarPorCodigo(int codigo) {
         for (Usuario u : usuarios) {
             if (u.getMatricula() == codigo) {
+                System.out.println("Usuário com matrícula " + codigo + " encontrado.");
                 return u;
             }
         }
@@ -63,35 +70,66 @@ public class UsuarioDao implements Persistivel<Usuario> {
         return null;
     }
 
+    public Usuario buscarPorLogin(String login) {
+        for (Usuario u : this.usuarios) {
+            if (u.getLogin() != null && u.getLogin().equals(login)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
     @Override
-    public boolean remover(int codigo) {
-        for (Usuario u : usuarios) {
-            if (u.getMatricula() == codigo) {
-                usuarios.remove(u);
+    public boolean remover(int matricula) { // O código aqui é a matrícula
+        Iterator<Usuario> iterator = this.usuarios.iterator();
+        while (iterator.hasNext()) {
+            Usuario u = iterator.next();
+            if (u.getMatricula() == matricula) {
+                iterator.remove();
                 salvarNoArquivo();
-                System.out.println("Usuário removido com sucesso.");
+                System.out.println("Usuário com matrícula " + matricula + " removido com sucesso.");
                 return true;
             }
         }
-        System.out.println("Usuário não encontrado para remoção.");
+        System.out.println("Erro ao remover: Usuário com matrícula " + matricula + " não encontrado.");
         return false;
     }
 
     @Override
     public List<Usuario> listar() {
-        return usuarios;
+        return new ArrayList<>(this.usuarios);
     }
 
     @Override
-    public void atualizar(Usuario usuarioAtualizado) {
+    public boolean atualizar(Usuario usuarioAtualizado) {
         for (int i = 0; i < usuarios.size(); i++) {
             if (usuarios.get(i).getMatricula() == usuarioAtualizado.getMatricula()) {
                 usuarios.set(i, usuarioAtualizado);
                 salvarNoArquivo();
                 System.out.println("Usuário atualizado com sucesso.");
-                return;
+                return true;
             }
         }
         System.out.println("Usuário não encontrado para atualização.");
+        return false;
     }
+    //Métodos Internos auxiliares
+    public Usuario buscarPorCodigoSemMensagem(int matricula) {
+        for (Usuario u : this.usuarios) {
+            if (u.getMatricula() == matricula) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    public Usuario buscarPorLoginSemMensagem(String login) {
+        for (Usuario u : this.usuarios) {
+            if (u.getLogin() != null && u.getLogin().equals(login)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
 }

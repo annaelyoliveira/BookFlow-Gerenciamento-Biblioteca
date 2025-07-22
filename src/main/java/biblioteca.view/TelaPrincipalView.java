@@ -13,7 +13,9 @@ public class TelaPrincipalView extends JFrame {
     private JPanel painelConteudo; // Onde as telas de funcionalidade serão exibidas
 
     private JButton btnCadastrarObra;
-    private JButton btnCadastrarUsuario;
+    private JButton btnCadastrarUsuarioSistema;
+    private JButton btnCadastrarLeitor;
+    private JButton btnGerenciarUsuarios;
     private JButton btnEmprestarObra;
     private JButton btnDevolverObra;
     private JButton btnListarObras; // Botão de listar obras
@@ -22,7 +24,7 @@ public class TelaPrincipalView extends JFrame {
     private JButton btnSair;
 
     public TelaPrincipalView(Usuario usuario) {
-        super("Sistema de Gerenciamento de Biblioteca - " + usuario.getNome() + " (" + usuario.getTipoUsuario() + ")");
+        super("Sistema de Gerenciamento de Biblioteca - " + usuario.getNome() + " (" + usuario.getPerfilAcesso() + ")");
         this.usuarioLogado = usuario;
 
         // --- Configurações da Janela Principal ---
@@ -33,7 +35,7 @@ public class TelaPrincipalView extends JFrame {
 
         // --- Painel Superior (Boas-vindas) ---
         JPanel painelSuperior = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel boasVindasLabel = new JLabel("Bem-vindo(a), " + usuarioLogado.getNome() + "! (" + usuarioLogado.getTipoUsuario() + ")");
+        JLabel boasVindasLabel = new JLabel("Bem-vindo(a), " + usuarioLogado.getNome() + "! (" + usuarioLogado.getPerfilAcesso() + ")");
         boasVindasLabel.setFont(new Font("Arial", Font.BOLD, 18));
         painelSuperior.add(boasVindasLabel);
         add(painelSuperior, BorderLayout.NORTH);
@@ -45,7 +47,9 @@ public class TelaPrincipalView extends JFrame {
         painelMenu.add(Box.createRigidArea(new Dimension(0, 10)));
 
         btnCadastrarObra = new JButton("Cadastrar Obra");
-        btnCadastrarUsuario = new JButton("Cadastrar Usuário");
+        btnCadastrarUsuarioSistema = new JButton("Cadastrar Usuário");
+        btnCadastrarLeitor = new JButton("Cadastrar Leitor");
+        btnGerenciarUsuarios = new JButton("Gerenciar Usuários");
         btnEmprestarObra = new JButton("Empréstimo de Obra");
         btnDevolverObra = new JButton("Devolução de Obra");
         btnListarObras = new JButton("Listar / Pesquisar Obras"); // Inicialização do botão
@@ -54,10 +58,12 @@ public class TelaPrincipalView extends JFrame {
         btnSair = new JButton("Sair");
 
         adicionarBotaoAoMenu(painelMenu, btnCadastrarObra);
-        adicionarBotaoAoMenu(painelMenu, btnCadastrarUsuario);
+        adicionarBotaoAoMenu(painelMenu, btnCadastrarUsuarioSistema);
+        adicionarBotaoAoMenu(painelMenu, btnCadastrarLeitor);
+        adicionarBotaoAoMenu(painelMenu, btnGerenciarUsuarios);
         adicionarBotaoAoMenu(painelMenu, btnEmprestarObra);
         adicionarBotaoAoMenu(painelMenu, btnDevolverObra);
-        adicionarBotaoAoMenu(painelMenu, btnListarObras); // Adição do botão ao menu
+        adicionarBotaoAoMenu(painelMenu, btnListarObras);
         adicionarBotaoAoMenu(painelMenu, btnRegistrarPagamento);
         adicionarBotaoAoMenu(painelMenu, btnRelatorios);
         painelMenu.add(Box.createVerticalGlue());
@@ -83,12 +89,16 @@ public class TelaPrincipalView extends JFrame {
             mostrarPainel(new CadastroObraPanel());
         });
 
-        btnCadastrarUsuario.addActionListener(e -> {
-            mostrarPainel(new CadastroUsuarioPanel());
+        btnCadastrarUsuarioSistema.addActionListener(e -> {
+            mostrarPainel(new CadastroUsuarioPanel(false));
         });
 
-        btnListarObras.addActionListener(e -> {
-            mostrarPainel(new ListarObrasPanel());
+        btnCadastrarLeitor.addActionListener(e -> {
+            mostrarPainel(new CadastrarLeitorPanel());
+        });
+
+        btnGerenciarUsuarios.addActionListener(e -> {
+            mostrarPainel(new GerenciarUsuariosPanel());
         });
 
         btnEmprestarObra.addActionListener(e -> {
@@ -97,6 +107,10 @@ public class TelaPrincipalView extends JFrame {
 
         btnDevolverObra.addActionListener(e -> {
             mostrarPainel(new DevolverObraPanel());
+        });
+
+        btnListarObras.addActionListener(e -> {
+            mostrarPainel(new ListarObrasPanel());
         });
 
         setVisible(true);
@@ -112,20 +126,24 @@ public class TelaPrincipalView extends JFrame {
     }
 
     private void controlarAcessos() {
-        String tipo = usuarioLogado.getTipoUsuario();
+        String perfil = usuarioLogado.getPerfilAcesso();
 
         btnCadastrarObra.setEnabled(false);
-        btnCadastrarUsuario.setEnabled(false);
+        btnCadastrarUsuarioSistema.setEnabled(false);
+        btnCadastrarLeitor.setEnabled(false);
+        btnGerenciarUsuarios.setEnabled(false);
         btnEmprestarObra.setEnabled(false);
         btnDevolverObra.setEnabled(false);
         btnListarObras.setEnabled(false);
         btnRegistrarPagamento.setEnabled(false);
         btnRelatorios.setEnabled(false);
 
-        switch (tipo) {
+        switch (perfil) {
             case "Administrador":
                 btnCadastrarObra.setEnabled(true);
-                btnCadastrarUsuario.setEnabled(true);
+                btnCadastrarUsuarioSistema.setEnabled(true);
+                btnCadastrarLeitor.setEnabled(true);
+                btnGerenciarUsuarios.setEnabled(true);
                 btnEmprestarObra.setEnabled(true);
                 btnDevolverObra.setEnabled(true);
                 btnListarObras.setEnabled(true);
@@ -133,6 +151,7 @@ public class TelaPrincipalView extends JFrame {
                 btnRelatorios.setEnabled(true);
                 break;
             case "Bibliotecario":
+                btnCadastrarLeitor.setEnabled(true);
                 btnEmprestarObra.setEnabled(true);
                 btnDevolverObra.setEnabled(true);
                 btnListarObras.setEnabled(true);
@@ -141,9 +160,10 @@ public class TelaPrincipalView extends JFrame {
                 break;
             case "Estagiario":
                 btnDevolverObra.setEnabled(true);
+                btnListarObras.setEnabled(true);
                 break;
             default:
-                System.out.println("Tipo de usuário desconhecido: " + tipo + ". Acesso limitado.");
+                System.out.println("Tipo de usuário desconhecido: " + perfil + ". Acesso limitado.");
                 break;
         }
         btnSair.setEnabled(true);
@@ -154,10 +174,5 @@ public class TelaPrincipalView extends JFrame {
         painelConteudo.add(novoPainel, BorderLayout.CENTER);
         painelConteudo.revalidate();
         painelConteudo.repaint();
-    }
-
-    public static void main(String[] args) {
-        Usuario usuarioTeste = new Usuario("Admin Teste", 9999, "Administrador", "1234-5678", "teste@admin.com", "admin123");
-        SwingUtilities.invokeLater(() -> new TelaPrincipalView(usuarioTeste));
     }
 }

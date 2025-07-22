@@ -11,13 +11,13 @@ public class LoginController {
         this.usuarioDao = new UsuarioDao();
     }
 
-    public Usuario autenticar(int matricula, String senha) {
-        Usuario usuario = usuarioDao.buscarPorCodigo(matricula);
+    public Usuario autenticar(String login, String senha) {
+        Usuario usuario = usuarioDao.buscarPorLogin(login);
         if (usuario != null && usuario.getSenha() != null && usuario.getSenha().equals(senha)) {
-            System.out.println("Login bem-sucedido para: " + usuario.getNome() + " (" + usuario.getTipoUsuario() + ")");
+            System.out.println("Login bem-sucedido para: " + usuario.getNome() + " (" + usuario.getPerfilAcesso() + ")");
             return usuario;
         } else {
-            System.out.println("Matrícula ou senha incorretos.");
+            System.out.println("Login ou senha incorretos.");
             return null;
         }
     }
