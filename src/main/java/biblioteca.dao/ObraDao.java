@@ -1,4 +1,3 @@
-
 package biblioteca.dao;
 
 import biblioteca.model.Artigo;

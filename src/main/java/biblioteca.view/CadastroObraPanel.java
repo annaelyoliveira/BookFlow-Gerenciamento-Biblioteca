@@ -73,34 +73,34 @@ public class CadastroObraPanel extends JPanel {
     }
 
     private void cadastrarObra() {
+        int codigo;
+        String titulo = campoTitulo.getText();
+        String autor = campoAutor.getText();
+        int anoPublicacao;
+        String tipoObra = (String) comboTipoObra.getSelectedItem();
+
         try {
-            int codigo = Integer.parseInt(campoCodigo.getText());
-            String titulo = campoTitulo.getText();
-            String autor = campoAutor.getText();
-            int anoPublicacao = Integer.parseInt(campoAnoPublicacao.getText());
-            String tipoObra = (String) comboTipoObra.getSelectedItem();
-
-            boolean sucesso = obraController.cadastrarObra(codigo, titulo, autor, anoPublicacao, tipoObra);
-
-            if (sucesso) {
-                mensagemFeedback.setText("Obra cadastrada com sucesso!");
-                mensagemFeedback.setForeground(new Color(0, 128, 0));
-                campoCodigo.setText("");
-                campoTitulo.setText("");
-                campoAutor.setText("");
-                campoAnoPublicacao.setText("");
-                comboTipoObra.setSelectedIndex(0);
-            } else {
-                mensagemFeedback.setText("Erro ao cadastrar obra. Verifique o código (já existente ou inválido).");
-                mensagemFeedback.setForeground(Color.RED);
-            }
+            codigo = Integer.parseInt(campoCodigo.getText());
+            anoPublicacao = Integer.parseInt(campoAnoPublicacao.getText());
         } catch (NumberFormatException ex) {
             mensagemFeedback.setText("Erro: Código e Ano de Publicação devem ser números válidos.");
             mensagemFeedback.setForeground(Color.RED);
-        } catch (Exception ex) {
-            mensagemFeedback.setText("Erro inesperado: " + ex.getMessage());
+            return;
+        }
+
+        boolean sucesso = obraController.cadastrarObra(codigo, titulo, autor, anoPublicacao, tipoObra);
+
+        if (sucesso) {
+            mensagemFeedback.setText("Obra cadastrada com sucesso!");
+            mensagemFeedback.setForeground(new Color(0, 128, 0));
+            campoCodigo.setText("");
+            campoTitulo.setText("");
+            campoAutor.setText("");
+            campoAnoPublicacao.setText("");
+            comboTipoObra.setSelectedIndex(0);
+        } else {
+            mensagemFeedback.setText("Erro ao cadastrar obra. Verifique o código (já existente ou inválido).");
             mensagemFeedback.setForeground(Color.RED);
-            ex.printStackTrace();
         }
     }
 }
