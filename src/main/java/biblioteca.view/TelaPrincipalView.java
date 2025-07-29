@@ -4,8 +4,6 @@ import biblioteca.model.Usuario;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class TelaPrincipalView extends JFrame {
 
@@ -111,6 +109,14 @@ public class TelaPrincipalView extends JFrame {
 
         btnListarObras.addActionListener(e -> {
             mostrarPainel(new ListarObrasPanel());
+        });
+
+        btnRegistrarPagamento.addActionListener(e -> {
+            mostrarPainel(new RegistrarPagamentoMultaPanel());
+        });
+
+        btnRelatorios.addActionListener(e -> {
+            mostrarPainel(new GerarRelatoriosPanel());
         });
 
         setVisible(true);
