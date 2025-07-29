@@ -45,7 +45,7 @@ public class RelatorioController {
             document.add(new Paragraph("Relatório de Empréstimos Realizados em " + mes + "/" + ano));
             document.add(new Paragraph("\n"));
 
-            PdfPTable table = new PdfPTable(5);
+            PdfPTable table = new PdfPTable(6);
             table.setWidthPercentage(100);
             table.setSpacingBefore(10f);
             table.setSpacingAfter(10f);
@@ -55,6 +55,7 @@ public class RelatorioController {
             table.addCell(new PdfPCell(new Phrase("Matrícula Leitor")));
             table.addCell(new PdfPCell(new Phrase("Data Emprestimo")));
             table.addCell(new PdfPCell(new Phrase("Devolução Prevista")));
+            table.addCell(new PdfPCell(new Phrase("Data Devolução")));
 
             List<Emprestimo> emprestimosDoMes = emprestimoDao.listar().stream()
                     .filter(e -> e.getDataEmprestimo().getMonthValue() == mes && e.getDataEmprestimo().getYear() == ano)
@@ -69,6 +70,7 @@ public class RelatorioController {
                     table.addCell(String.valueOf(e.getUsuario().getMatricula()));
                     table.addCell(e.getDataEmprestimo().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                     table.addCell(e.getDataDevolucaoPrevista().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                    table.addCell(e.getDataDevolucaoReal() != null ? e.getDataDevolucaoReal().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Empr. Ativo");
                 }
                 document.add(table);
             }
