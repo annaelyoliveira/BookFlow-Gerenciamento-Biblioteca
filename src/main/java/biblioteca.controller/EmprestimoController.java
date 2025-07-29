@@ -2,9 +2,11 @@ package biblioteca.controller;
 
 import biblioteca.dao.EmprestimoDao;
 import biblioteca.dao.ObraDao;
+import biblioteca.dao.PagamentoMultaDao;
 import biblioteca.dao.UsuarioDao;
 import biblioteca.model.Emprestimo;
 import biblioteca.model.Obra;
+import biblioteca.model.PagamentoMulta;
 import biblioteca.model.Usuario;
 
 import java.time.LocalDate;
@@ -16,11 +18,13 @@ public class EmprestimoController {
     private EmprestimoDao emprestimoDao;
     private ObraDao obraDao;
     private UsuarioDao usuarioDao;
+    private PagamentoMultaDao pagamentoMultaDao;
 
     public EmprestimoController() {
         this.emprestimoDao = new EmprestimoDao();
         this.obraDao = new ObraDao();
         this.usuarioDao = new UsuarioDao();
+        this.pagamentoMultaDao = new PagamentoMultaDao();
     }
 
     public String realizarEmprestimo(int codigoObra, int matriculaUsuario) {
@@ -39,8 +43,7 @@ public class EmprestimoController {
         }
 
         LocalDate dataEmprestimo = LocalDate.now();
-        int tempoEmprestimoDias = obra.getTempoEmprestimo();
-        LocalDate dataDevolucaoPrevista = dataEmprestimo.plusDays(tempoEmprestimoDias);
+        LocalDate dataDevolucaoPrevista = dataEmprestimo.plusDays(obra.getTempoEmprestimo());
 
         Emprestimo novoEmprestimo = new Emprestimo(0, obra, usuario, dataEmprestimo, dataDevolucaoPrevista);
         emprestimoDao.adicionar(novoEmprestimo);
@@ -48,7 +51,7 @@ public class EmprestimoController {
         obra.setStatus(false);
         obraDao.atualizar(obra);
 
-        return "Empréstimo de \"" + obra.getTitulo() + "\" para o leitor \"" + usuario.getNome() + "\" (Matrícula: " + usuario.getMatricula() + ") realizado com sucesso. Devolução prevista: " + dataDevolucaoPrevista + ". ID do Empréstimo: " + novoEmprestimo.getId();
+        return "Empréstimo de \"" + obra.getTitulo() + "\" para o leitor \"" + usuario.getNome() + "\" (Matrícula: " + usuario.getMatricula() + ") realizado com sucesso. Devolução prevista: " + dataDevolucaoPrevista;
     }
 
     public String realizarDevolucao(int codigoObra, int matriculaLeitor) {
@@ -61,25 +64,23 @@ public class EmprestimoController {
             return "Erro: Leitor com matrícula " + matriculaLeitor + " não encontrado para devolução.";
         }
 
-        Emprestimo emprestimo = buscarEmprestimoAtivoPorObraELeitor(codigoObra, matriculaLeitor); // NOVO MÉTODO AUXILIAR
+        Emprestimo emprestimo = buscarEmprestimoAtivoPorObraELeitor(codigoObra, matriculaLeitor);
 
         if (emprestimo == null) {
             return "Erro: Obra \"" + obra.getTitulo() + "\" (Código: " + codigoObra + ") não está emprestada para o leitor " + leitor.getNome() + " (Matrícula: " + matriculaLeitor + ") ou já foi devolvida.";
         }
 
-        LocalDate dataDevolucaoReal = LocalDate.now();
-        emprestimo.setDataDevolucaoReal(dataDevolucaoReal);
+        emprestimo.setDataDevolucaoReal(LocalDate.now());
 
-        double multa = calcularMultaPorAtraso(emprestimo.getDataDevolucaoPrevista(), dataDevolucaoReal);
+        double multa = calcularMultaPorAtraso(emprestimo.getDataDevolucaoPrevista(), emprestimo.getDataDevolucaoReal());
         emprestimo.setMultaAplicada(multa);
 
-        Obra obraDevolvida = emprestimo.getObra();
-        obraDevolvida.setStatus(true);
-        obraDao.atualizar(obraDevolvida);
+       obra.setStatus(true);
+        obraDao.atualizar(obra);
 
         emprestimoDao.atualizar(emprestimo);
 
-        String mensagem = "Devolução da obra \"" + obraDevolvida.getTitulo() + "\" (Empréstimo ID: " + emprestimo.getId() + ") realizada com sucesso.";
+        String mensagem = "Devolução da obra \"" + obra.getTitulo() + "\" realizada com sucesso.";
         if (multa > 0) {
             mensagem += " Multa aplicada: R$ " + String.format("%.2f", multa);
         } else {
@@ -89,8 +90,7 @@ public class EmprestimoController {
     }
 
     private Emprestimo buscarEmprestimoAtivoPorObraELeitor(int codigoObra, int matriculaLeitor) {
-        List<Emprestimo> todosEmprestimos = emprestimoDao.listar();
-        for (Emprestimo emp : todosEmprestimos) {
+        for (Emprestimo emp : emprestimoDao.listar()) {
             if (emp.getDataDevolucaoReal() == null &&
                     emp.getObra().getCodigo() == codigoObra &&
                     emp.getUsuario().getMatricula() == matriculaLeitor) {
@@ -108,24 +108,50 @@ public class EmprestimoController {
         return 0.0;
     }
 
-    public String registrarPagamentoMulta(int idEmprestimo) {
-        Emprestimo emprestimo = emprestimoDao.buscarPorCodigo(idEmprestimo);
-        if (emprestimo == null) {
-            return "Erro: Empréstimo com ID " + idEmprestimo + " não encontrado.";
-        }
-        if (emprestimo.getMultaAplicada() == 0.0) {
-            return "Erro: Não há multa aplicada para o empréstimo ID " + idEmprestimo + ".";
-        }
-        if (emprestimo.isMultaPaga()) {
-            return "Erro: Multa do empréstimo ID " + idEmprestimo + " já foi paga.";
+    public String registrarPagamentoMulta(int codigoObra, int matriculaLeitor, String metodoPagamento) {
+        Obra obra = obraDao.buscarPorCodigo(codigoObra);
+        if (obra == null) {
+            return  "Erro: Obra com código " + codigoObra + " não encontrada para registrar pagamento de multa.";
         }
 
-        emprestimo.setMultaPaga(true);
-        emprestimoDao.atualizar(emprestimo);
-        return "Pagamento de multa para o empréstimo ID " + idEmprestimo + " registrado com sucesso.";
+        Usuario leitor = usuarioDao.buscarPorCodigo(matriculaLeitor);
+        if (leitor == null) {
+            return "Erro: Leitor com matrícula " + matriculaLeitor + " não encontrado para registrar pagamento de multa.";
+        }
+
+        Emprestimo emprestimoComMulta = buscarEmprestimoDevolvidoComMulta(codigoObra, matriculaLeitor); // NOVO MÉTODO AUXILIAR
+
+        if (emprestimoComMulta == null) {
+            return "Erro: Nenhuma multa pendente encontrada para a obra \"" + obra.getTitulo() + "\" (Código: " + codigoObra + ") e leitor " + leitor.getNome() + " (Matrícula: " + matriculaLeitor + ").";
+        }
+        if (emprestimoComMulta.isMultaPaga()) {
+            return "Erro: Multa para a obra \"" + obra.getTitulo() + "\" e leitor " + leitor.getNome() + " já foi paga.";
+        }
+
+        emprestimoComMulta.setMultaPaga(true);
+        emprestimoDao.atualizar(emprestimoComMulta);
+
+        PagamentoMulta novoPagamento = new PagamentoMulta(0, emprestimoComMulta.getId(), leitor.getMatricula(), emprestimoComMulta.getMultaAplicada(), LocalDate.now(), metodoPagamento);
+        pagamentoMultaDao.adicionar(novoPagamento);
+
+        return "Pagamento de multa (R$ " + String.format("%.2f", emprestimoComMulta.getMultaAplicada()) + ") para a obra \"" + obra.getTitulo() + "\" e leitor " + leitor.getNome() + " registrado com sucesso (" + metodoPagamento + ").";
+    }
+
+    public Emprestimo buscarEmprestimoDevolvidoComMulta(int codigoObra, int matriculaLeitor) {
+        for (Emprestimo emp : emprestimoDao.listar()) {
+            if (emp.getDataDevolucaoReal() != null &&
+                    emp.getMultaAplicada() > 0 &&
+                    !emp.isMultaPaga() &&
+                    emp.getObra().getCodigo() == codigoObra &&
+                    emp.getUsuario().getMatricula() == matriculaLeitor) {
+                return emp;
+            }
+        }
+        return null;
     }
 
     public List<Emprestimo> listarTodosEmprestimos() {
+
         return emprestimoDao.listar();
     }
 }

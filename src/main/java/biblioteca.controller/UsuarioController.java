@@ -15,15 +15,11 @@ public class UsuarioController {
         List<Usuario> todosUsuarios = usuarioDao.listar();
         int menorMatriculaNegativa = -1;
         for (Usuario u : todosUsuarios) {
-            if (u.getMatricula() < 0 && u.getMatricula() <= menorMatriculaNegativa) { // Se for negativa e menor ou igual
-                menorMatriculaNegativa = u.getMatricula() - 1; // Próximo ID será ainda menor
+            if (u.getMatricula() < 0 && u.getMatricula() <= menorMatriculaNegativa) {
+                menorMatriculaNegativa = u.getMatricula() - 1;
             }
         }
         this.proximaMatriculaSistema = menorMatriculaNegativa;
-    }
-
-    private int gerarMatriculaUnicaParaUsuarioSistema() {
-        return proximaMatriculaSistema--; // Decrementa e retorna o próximo ID negativo
     }
 
     public String cadastrarUsuarioSistema(String nome, String login, String telefone, String email, String perfilAcesso, String senha) {
