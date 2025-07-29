@@ -27,9 +27,9 @@ public class EmprestimoDao implements Persistivel<Emprestimo> {
     private static final RuntimeTypeAdapterFactory<Obra> obraAdapterFactory =
             RuntimeTypeAdapterFactory
                     .of(Obra.class, "type")
-                    .registerSubtype(biblioteca.model.Livro.class, "livro") // Caminho completo para Livro
-                    .registerSubtype(biblioteca.model.Revista.class, "revista") // Caminho completo para Revista
-                    .registerSubtype(biblioteca.model.Artigo.class, "artigo"); // Caminho completo para Artigo
+                    .registerSubtype(biblioteca.model.Livro.class, "livro")
+                    .registerSubtype(biblioteca.model.Revista.class, "revista")
+                    .registerSubtype(biblioteca.model.Artigo.class, "artigo");
 
     private final Gson gsonEscrita = new GsonBuilder()
             .setPrettyPrinting()
