@@ -76,51 +76,40 @@ public class GerarRelatoriosPanel extends JPanel {
     }
 
     private void gerarRelatorioEmprestimosMes() {
+        int mes = comboMes.getSelectedIndex() + 1;
+        int ano;
         try {
-            int mes = comboMes.getSelectedIndex() + 1;
-            int ano = Integer.parseInt(campoAno.getText());
-            String nomeArquivo = "relatorio_emprestimos_" + mes + "_" + ano + ".pdf";
-
-            String caminhoSalvar = escolherCaminhoSalvar(nomeArquivo);
-            if (caminhoSalvar != null) {
-                String resultado = relatorioController.gerarRelatorioEmprestimosMes(mes, ano, caminhoSalvar);
-                mostrarFeedback(resultado);
-            }
+            ano = Integer.parseInt(campoAno.getText());
         } catch (NumberFormatException ex) {
             mostrarFeedback("Erro: Ano deve ser um número válido.", true);
-        } catch (Exception ex) {
-            mostrarFeedback("Erro inesperado: " + ex.getMessage(), true);
-            ex.printStackTrace();
+            return;
+        }
+        String nomeArquivo = "relatorio_emprestimos_" + mes + "_" + ano + ".pdf";
+
+        String caminhoSalvar = escolherCaminhoSalvar(nomeArquivo);
+        if (caminhoSalvar != null) {
+            String resultado = relatorioController.gerarRelatorioEmprestimosMes(mes, ano, caminhoSalvar);
+            mostrarFeedback(resultado);
         }
     }
 
     private void gerarRelatorioObrasMaisEmprestadas() {
-        try {
-            String nomeArquivo = "relatorio_obras_mais_emprestadas_top10.pdf";
+        String nomeArquivo = "relatorio_obras_mais_emprestadas_top10.pdf";
 
-            String caminhoSalvar = escolherCaminhoSalvar(nomeArquivo);
-            if (caminhoSalvar != null) {
-                String resultado = relatorioController.gerarRelatorioObrasMaisEmprestadas(caminhoSalvar);
-                mostrarFeedback(resultado);
-            }
-        } catch (Exception ex) {
-            mostrarFeedback("Erro inesperado: " + ex.getMessage(), true);
-            ex.printStackTrace();
+        String caminhoSalvar = escolherCaminhoSalvar(nomeArquivo);
+        if (caminhoSalvar != null) {
+            String resultado = relatorioController.gerarRelatorioObrasMaisEmprestadas(caminhoSalvar);
+            mostrarFeedback(resultado);
         }
     }
 
     private void gerarRelatorioUsuariosComMaisAtrasos() {
-        try {
-            String nomeArquivo = "relatorio_usuarios_mais_atrasos_top10.pdf";
+        String nomeArquivo = "relatorio_usuarios_mais_atrasos_top10.pdf";
 
-            String caminhoSalvar = escolherCaminhoSalvar(nomeArquivo);
-            if (caminhoSalvar != null) {
-                String resultado = relatorioController.gerarRelatorioUsuariosComMaisAtrasos(caminhoSalvar);
-                mostrarFeedback(resultado);
-            }
-        } catch (Exception ex) {
-            mostrarFeedback("Erro inesperado: " + ex.getMessage(), true);
-            ex.printStackTrace();
+        String caminhoSalvar = escolherCaminhoSalvar(nomeArquivo);
+        if (caminhoSalvar != null) {
+            String resultado = relatorioController.gerarRelatorioUsuariosComMaisAtrasos(caminhoSalvar);
+            mostrarFeedback(resultado);
         }
     }
 

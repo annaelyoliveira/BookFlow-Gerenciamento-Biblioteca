@@ -72,7 +72,6 @@ public class GerenciarUsuariosPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(tabelaUsuarios);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Listeners para os botões de seleção
         btnMostrarLeitores.addActionListener(e -> {
             mostrandoLeitores = true;
             carregarUsuariosNaTabela(campoPesquisa.getText());
@@ -98,6 +97,7 @@ public class GerenciarUsuariosPanel extends JPanel {
                 botaoExcluir.setEnabled(false);
             }
         });
+
         mostrandoLeitores = false;
         carregarUsuariosNaTabela(null);
     }
@@ -188,9 +188,8 @@ public class GerenciarUsuariosPanel extends JPanel {
         Usuario usuarioParaEditar = null;
 
         if (mostrandoLeitores) {
-            // Edição de Leitores
-            int matricula = (int) modeloTabela.getValueAt(selectedRow, 0); // Matrícula é a primeira coluna
-            usuarioParaEditar = usuarioController.buscarLeitorPorMatricula(matricula);
+            int matriculaOriginal = (int) modeloTabela.getValueAt(selectedRow, 0);
+            usuarioParaEditar = usuarioController.buscarLeitorPorMatricula(matriculaOriginal);
 
             if (usuarioParaEditar == null) {
                 mensagemFeedback.setText("Erro: Leitor não encontrado para edição.");
@@ -206,7 +205,7 @@ public class GerenciarUsuariosPanel extends JPanel {
             JComboBox<String> comboCategoria = new JComboBox<>(categorias);
             comboCategoria.setSelectedItem(usuarioParaEditar.getCategoriaLeitor());
 
-            txtMatricula.setEnabled(false);
+            txtMatricula.setEnabled(true);
 
             JPanel painelEdicao = new JPanel(new GridLayout(0, 2, 5, 5));
             painelEdicao.add(new JLabel("Nome:"));
@@ -228,30 +227,45 @@ public class GerenciarUsuariosPanel extends JPanel {
                 String novaCategoria = (String) comboCategoria.getSelectedItem();
                 String novoTelefone = txtTelefone.getText();
                 String novoEmail = txtEmail.getText();
+                int novaMatricula;
+
+                try {
+                    novaMatricula = Integer.parseInt(txtMatricula.getText());
+                } catch (NumberFormatException e) {
+                    mensagemFeedback.setText("Erro: Nova matrícula deve ser um número válido.");
+                    mensagemFeedback.setForeground(Color.RED);
+                    return;
+                }
 
                 Usuario leitorAtualizado = new Usuario(
                         novoNome,
-                        usuarioParaEditar.getMatricula(),
+                        novaMatricula, // USA A NOVA MATRÍCULA
                         novaCategoria,
                         novoTelefone,
                         novoEmail
                 );
 
-                boolean sucesso = usuarioController.atualizarUsuario(leitorAtualizado);
-                if (sucesso) {
-                    mensagemFeedback.setText("Leitor " + leitorAtualizado.getNome() + " atualizado com sucesso!");
-                    mensagemFeedback.setForeground(new Color(0, 128, 0));
-                    carregarUsuariosNaTabela(campoPesquisa.getText());
+                boolean removeuAntigo = usuarioController.removerUsuario(matriculaOriginal);
+                if (removeuAntigo) {
+                    String resultadoAddNovo = usuarioController.cadastrarLeitor(leitorAtualizado.getNome(), leitorAtualizado.getMatricula(), leitorAtualizado.getCategoriaLeitor(), leitorAtualizado.getTelefone(), leitorAtualizado.getEmail());
+                    if (resultadoAddNovo.startsWith("Erro:")) {
+                        mensagemFeedback.setText("Erro ao salvar leitor com nova matrícula: " + resultadoAddNovo);
+                        mensagemFeedback.setForeground(Color.RED);
+                    } else {
+                        mensagemFeedback.setText("Leitor " + leitorAtualizado.getNome() + " atualizado com sucesso!");
+                        mensagemFeedback.setForeground(new Color(0, 128, 0));
+                    }
                 } else {
-                    mensagemFeedback.setText("Erro ao atualizar leitor.");
+                    mensagemFeedback.setText("Erro inesperado ao remover o leitor original para atualização de matrícula.");
                     mensagemFeedback.setForeground(Color.RED);
                 }
+                carregarUsuariosNaTabela(campoPesquisa.getText());
             }
 
         } else {
             // Edição de Usuários do Sistema
-            String login = (String) modeloTabela.getValueAt(selectedRow, 0);
-            usuarioParaEditar = usuarioController.buscarUsuarioPorLogin(login);
+            String loginOriginal = (String) modeloTabela.getValueAt(selectedRow, 0);
+            usuarioParaEditar = usuarioController.buscarUsuarioPorLogin(loginOriginal);
 
             if (usuarioParaEditar == null) {
                 mensagemFeedback.setText("Erro: Usuário do sistema não encontrado para edição.");
@@ -269,7 +283,7 @@ public class GerenciarUsuariosPanel extends JPanel {
             JComboBox<String> comboPerfil = new JComboBox<>(perfis);
             comboPerfil.setSelectedItem(usuarioParaEditar.getPerfilAcesso());
 
-            txtLogin.setEnabled(false);
+            txtLogin.setEnabled(true);
 
             JPanel painelEdicao = new JPanel(new GridLayout(0, 2, 5, 5));
             painelEdicao.add(new JLabel("Nome:"));
@@ -290,6 +304,7 @@ public class GerenciarUsuariosPanel extends JPanel {
 
             if (result == JOptionPane.OK_OPTION) {
                 String novoNome = txtNome.getText();
+                String novoLogin = txtLogin.getText();
                 String novoTelefone = txtTelefone.getText();
                 String novoEmail = txtEmail.getText();
                 String novoPerfil = (String) comboPerfil.getSelectedItem();
@@ -297,7 +312,7 @@ public class GerenciarUsuariosPanel extends JPanel {
 
                 Usuario usuarioAtualizado = new Usuario(
                         novoNome,
-                        usuarioParaEditar.getLogin(),
+                        novoLogin,
                         usuarioParaEditar.getMatricula(),
                         usuarioParaEditar.getCategoriaLeitor(),
                         novoTelefone,
@@ -306,15 +321,35 @@ public class GerenciarUsuariosPanel extends JPanel {
                         novaSenha.isEmpty() ? usuarioParaEditar.getSenha() : novaSenha
                 );
 
-                boolean sucesso = usuarioController.atualizarUsuario(usuarioAtualizado);
-                if (sucesso) {
-                    mensagemFeedback.setText("Usuário " + usuarioAtualizado.getNome() + " atualizado com sucesso!");
-                    mensagemFeedback.setForeground(new Color(0, 128, 0));
-                    carregarUsuariosNaTabela(campoPesquisa.getText());
+                boolean sucesso;
+                if (!loginOriginal.equals(novoLogin)) {
+                    boolean removeuAntigo = usuarioController.removerUsuario(usuarioParaEditar.getMatricula());
+                    if (removeuAntigo) {
+                        String resultadoAddNovo = usuarioController.cadastrarUsuarioSistema(usuarioAtualizado.getNome(), usuarioAtualizado.getLogin(), usuarioAtualizado.getTelefone(), usuarioAtualizado.getEmail(), usuarioAtualizado.getPerfilAcesso(), usuarioAtualizado.getSenha());
+                        sucesso = !resultadoAddNovo.startsWith("Erro:");
+                        if (sucesso) {
+                            mensagemFeedback.setText("Usuário " + usuarioAtualizado.getNome() + " atualizado com sucesso!");
+                            mensagemFeedback.setForeground(new Color(0, 128, 0));
+                        } else {
+                            mensagemFeedback.setText("Erro ao salvar usuário com novo login: " + resultadoAddNovo);
+                            mensagemFeedback.setForeground(Color.RED);
+                        }
+                    } else {
+                        mensagemFeedback.setText("Erro inesperado ao remover o usuário original para atualização de login.");
+                        mensagemFeedback.setForeground(Color.RED);
+                        sucesso = false;
+                    }
                 } else {
-                    mensagemFeedback.setText("Erro ao atualizar usuário.");
-                    mensagemFeedback.setForeground(Color.RED);
+                    sucesso = usuarioController.atualizarUsuario(usuarioAtualizado);
+                    if (sucesso) {
+                        mensagemFeedback.setText("Usuário " + usuarioAtualizado.getNome() + " atualizado com sucesso!");
+                        mensagemFeedback.setForeground(new Color(0, 128, 0));
+                    } else {
+                        mensagemFeedback.setText("Erro ao atualizar usuário.");
+                        mensagemFeedback.setForeground(Color.RED);
+                    }
                 }
+                carregarUsuariosNaTabela(campoPesquisa.getText());
             }
         }
     }
@@ -334,7 +369,6 @@ public class GerenciarUsuariosPanel extends JPanel {
             matriculaParaExcluir = (int) modeloTabela.getValueAt(selectedRow, 0);
             nomeParaExcluir = (String) modeloTabela.getValueAt(selectedRow, 1);
         } else {
-            // Para usuários do sistema, precisamos buscar a matrícula pelo login
             String login = (String) modeloTabela.getValueAt(selectedRow, 0);
             nomeParaExcluir = (String) modeloTabela.getValueAt(selectedRow, 1);
             Usuario user = usuarioController.buscarUsuarioPorLogin(login);

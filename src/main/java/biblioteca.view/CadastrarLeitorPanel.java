@@ -13,7 +13,6 @@ public class CadastrarLeitorPanel extends JPanel {
     private JComboBox<String> comboCategoriaLeitor;
     private JTextField campoTelefone;
     private JTextField campoEmail;
-    // Sem campo de senha ou perfil de acesso para o Leitor, se ele não for logar no sistema
     private JButton botaoSalvar;
     private JLabel mensagemFeedback;
 
@@ -60,40 +59,33 @@ public class CadastrarLeitorPanel extends JPanel {
     }
 
     private void cadastrarLeitor() {
+        String nome = campoNome.getText();
+        String categoriaLeitor = (String) comboCategoriaLeitor.getSelectedItem();
+        String telefone = campoTelefone.getText();
+        String email = campoEmail.getText();
+
+        int matricula;
         try {
-            String nome = campoNome.getText();
-            int matricula;
-            try {
-                matricula = Integer.parseInt(campoMatricula.getText());
-            } catch (NumberFormatException ex) {
-                mensagemFeedback.setText("Erro: Matrícula deve ser um número válido.");
-                mensagemFeedback.setForeground(Color.RED);
-                return;
-            }
-
-            String categoriaLeitor = (String) comboCategoriaLeitor.getSelectedItem();
-            String telefone = campoTelefone.getText();
-            String email = campoEmail.getText();
-
-            String resultadoCadastro = usuarioController.cadastrarLeitor(nome, matricula, categoriaLeitor, telefone, email);
-
-            if (resultadoCadastro.startsWith("Erro:")) {
-                mensagemFeedback.setText(resultadoCadastro);
-                mensagemFeedback.setForeground(Color.RED);
-            } else {
-                mensagemFeedback.setText(resultadoCadastro);
-                mensagemFeedback.setForeground(new Color(0, 128, 0));
-                // Limpar campos
-                campoNome.setText("");
-                campoMatricula.setText("");
-                comboCategoriaLeitor.setSelectedIndex(0);
-                campoTelefone.setText("");
-                campoEmail.setText("");
-            }
-        } catch (Exception ex) {
-            mensagemFeedback.setText("Erro inesperado: " + ex.getMessage());
+            matricula = Integer.parseInt(campoMatricula.getText());
+        } catch (NumberFormatException ex) {
+            mensagemFeedback.setText("Erro: Matrícula deve ser um número válido.");
             mensagemFeedback.setForeground(Color.RED);
-            ex.printStackTrace();
+            return;
+        }
+
+        String resultadoCadastro = usuarioController.cadastrarLeitor(nome, matricula, categoriaLeitor, telefone, email);
+
+        if (resultadoCadastro.startsWith("Erro:")) {
+            mensagemFeedback.setText(resultadoCadastro);
+            mensagemFeedback.setForeground(Color.RED);
+        } else {
+            mensagemFeedback.setText(resultadoCadastro);
+            mensagemFeedback.setForeground(new Color(0, 128, 0));
+            campoNome.setText("");
+            campoMatricula.setText("");
+            comboCategoriaLeitor.setSelectedIndex(0);
+            campoTelefone.setText("");
+            campoEmail.setText("");
         }
     }
 }

@@ -1,17 +1,20 @@
-// src/main/java/biblioteca/view/ListarObrasPanel.java
 package biblioteca.view;
 
 import biblioteca.controller.ObraController;
+import biblioteca.controller.EmprestimoController;
 import biblioteca.model.Obra;
+import biblioteca.model.Emprestimo;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.List;
 
 
 public class ListarObrasPanel extends JPanel {
     private ObraController obraController;
+    private EmprestimoController emprestimoController;
     private JTable tabelaObras;
     private DefaultTableModel modeloTabela;
     private JTextField campoPesquisa;
@@ -20,13 +23,13 @@ public class ListarObrasPanel extends JPanel {
 
     public ListarObrasPanel() {
         this.obraController = new ObraController();
+        this.emprestimoController = new EmprestimoController();
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
 
         JLabel tituloPagina = new JLabel("Listagem e Pesquisa de Obras", SwingConstants.CENTER);
         tituloPagina.setFont(new Font("Arial", Font.BOLD, 24));
-        // Adiciona o título na parte superior (NORTH) do BorderLayout
         add(tituloPagina, BorderLayout.NORTH);
 
         JPanel painelPesquisa = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -43,23 +46,20 @@ public class ListarObrasPanel extends JPanel {
 
         add(painelPesquisa, BorderLayout.NORTH);
 
-        // --- Configuração da Tabela ---
-        String[] colunas = {"Código", "Título", "Autor", "Ano", "Status", "Tipo", "Prazo Empréstimo"};
+        String[] colunas = {"Código", "Título", "Autor", "Ano", "Status", "Tipo", "Prazo Empréstimo",  "Data Empréstimo"};
         modeloTabela = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
+
                 return false;
             }
         };
         tabelaObras = new JTable(modeloTabela);
         tabelaObras.setFillsViewportHeight(true);
-
         JScrollPane scrollPane = new JScrollPane(tabelaObras);
-
         add(scrollPane, BorderLayout.CENTER);
 
         botaoPesquisar.addActionListener(e -> carregarObrasNaTabela());
-
 
         carregarObrasNaTabela();
     }
@@ -77,19 +77,40 @@ public class ListarObrasPanel extends JPanel {
             obras = obraController.buscarObras(termo, tipoSelecionado.toLowerCase());
         }
 
+        List<Emprestimo> todosEmprestimos = emprestimoController.listarTodosEmprestimos();
+
         for (Obra obra : obras) {
             String status = obra.isStatus() ? "Disponível" : "Emprestado";
+
+            String dataEmprestimoStr = "";
+
+            for (Emprestimo emprestimo : todosEmprestimos) {
+                if (emprestimo.getObra().getCodigo() == obra.getCodigo()) {
+                    if (!obra.isStatus() && emprestimo.getDataDevolucaoReal() == null) {
+                        dataEmprestimoStr = formatarData(emprestimo.getDataEmprestimo());
+                        break;
+                    }
+                }
+            }
+
             Object[] linha = {
                     obra.getCodigo(),
                     obra.getTitulo(),
                     obra.getAutor(),
                     obra.getAnoPublicacao(),
                     status,
-
                     obra.getClass().getSimpleName(),
-                    obra.getTempoEmprestimo() + " dias"
+                    obra.getTempoEmprestimo() + " dias",
+                    dataEmprestimoStr,
             };
             modeloTabela.addRow(linha);
         }
+    }
+
+    private String formatarData(LocalDate data) {
+        if (data == null) {
+            return "";
+        }
+        return data.toString();
     }
 }

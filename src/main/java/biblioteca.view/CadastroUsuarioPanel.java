@@ -129,13 +129,6 @@ public class CadastroUsuarioPanel extends JPanel {
         }
     }
 
-    public void setPerfilAcessoAdminMode() {
-        comboPerfilAcesso.setSelectedItem("Administrador");
-        comboPerfilAcesso.setEnabled(false);
-        revalidate();
-        repaint();
-    }
-
     public String getLoginText() {
         return campoLogin.getText();
     }

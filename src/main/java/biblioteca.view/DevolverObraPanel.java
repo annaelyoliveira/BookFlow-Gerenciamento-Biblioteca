@@ -81,26 +81,25 @@ public class DevolverObraPanel extends JPanel {
     }
 
     private void realizarDevolucao() {
+        int codigoObra;
+        int matriculaLeitor;
+
         try {
-            int codigoObra = Integer.parseInt(campoCodigoObra.getText());
-            int matriculaLeitor = Integer.parseInt(campoMatriculaLeitor.getText());
-
-            String resultado = emprestimoController.realizarDevolucao(codigoObra, matriculaLeitor);
-            mensagemFeedback.setText(resultado);
-            mensagemFeedback.setForeground(resultado.startsWith("Erro") ? Color.RED : new Color(0, 128, 0));
-
-            if (!resultado.startsWith("Erro")) {
-                campoCodigoObra.setText("");
-                campoMatriculaLeitor.setText("");
-            }
-
+            codigoObra = Integer.parseInt(campoCodigoObra.getText());
+            matriculaLeitor = Integer.parseInt(campoMatriculaLeitor.getText());
         } catch (NumberFormatException ex) {
             mensagemFeedback.setText("Erro: Código da Obra e Matrícula do Leitor devem ser números válidos.");
             mensagemFeedback.setForeground(Color.RED);
-        } catch (Exception ex) {
-            mensagemFeedback.setText("Erro inesperado: " + ex.getMessage());
-            mensagemFeedback.setForeground(Color.RED);
-            ex.printStackTrace();
+            return;
+        }
+
+        String resultado = emprestimoController.realizarDevolucao(codigoObra, matriculaLeitor);
+        mensagemFeedback.setText(resultado);
+        mensagemFeedback.setForeground(resultado.startsWith("Erro") ? Color.RED : new Color(0, 128, 0));
+
+        if (!resultado.startsWith("Erro")) {
+            campoCodigoObra.setText("");
+            campoMatriculaLeitor.setText("");
         }
     }
 }
