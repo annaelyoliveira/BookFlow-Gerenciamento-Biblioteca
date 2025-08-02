@@ -1,0 +1,12 @@
+[
+  {
+    "nome": "david",
+    "login": "david",
+    "matricula": 0,
+    "categoriaLeitor": "Não se aplica",
+    "telefone": "",
+    "email": "",
+    "perfilAcesso": "Administrador",
+    "senha": "123"
+  }
+]

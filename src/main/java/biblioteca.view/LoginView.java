@@ -24,17 +24,14 @@ public class LoginView extends JFrame {
 
         this.loginController = new LoginController();
 
-        // --- Configurações da Janela ---
         setSize(450, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // --- Painel Principal para organizar tudo verticalmente ---
         JPanel painelPrincipal = new JPanel();
         painelPrincipal.setLayout(new BoxLayout(painelPrincipal, BoxLayout.Y_AXIS));
         painelPrincipal.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
-        // --- Componente: Título ---
         JLabel tituloLabel = new JLabel("Bem-vindo(a)!");
         tituloLabel.setFont(new Font("Arial", Font.BOLD, 20));
         tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -53,7 +50,6 @@ public class LoginView extends JFrame {
         painelPrincipal.add(painelLogin);
         painelPrincipal.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        // --- Painel para Senha ---
         JPanel painelSenha = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel labelSenha = new JLabel("Senha:");
         labelSenha.setPreferredSize(new Dimension(80, labelSenha.getPreferredSize().height));
@@ -67,7 +63,6 @@ public class LoginView extends JFrame {
 
         painelPrincipal.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // --- Painel para Botão de Login ---
         JPanel painelBotao = new JPanel(new FlowLayout(FlowLayout.CENTER));
         botaoLogin = new JButton("Login");
         botaoLogin.setPreferredSize(new Dimension(120, 35));
