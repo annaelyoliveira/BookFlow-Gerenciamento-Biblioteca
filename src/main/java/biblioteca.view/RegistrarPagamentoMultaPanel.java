@@ -11,7 +11,7 @@ public class RegistrarPagamentoMultaPanel extends JPanel {
     private EmprestimoController emprestimoController;
     private JTextField campoCodigoObra;
     private JTextField campoMatriculaLeitor;
-    private JLabel labelValorMulta; // NOVO: Para exibir o valor da multa
+    private JLabel labelValorMulta;
     private JComboBox<String> comboMetodoPagamento;
     private JButton botaoConfirmarPagamento;
     private JLabel mensagemFeedback;
@@ -62,7 +62,7 @@ public class RegistrarPagamentoMultaPanel extends JPanel {
         comboMetodoPagamento = new JComboBox<>(metodos);
         add(comboMetodoPagamento, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 2; // Ajustado gridy
+        gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 2;
         botaoConfirmarPagamento = new JButton("Confirmar Pagamento");
         botaoConfirmarPagamento.setPreferredSize(new Dimension(200, 40));
         botaoConfirmarPagamento.setMinimumSize(new Dimension(200, 40));
@@ -71,7 +71,7 @@ public class RegistrarPagamentoMultaPanel extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
         add(botaoConfirmarPagamento, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 7; gbc.gridwidth = 2; // Ajustado gridy
+        gbc.gridx = 0; gbc.gridy = 7; gbc.gridwidth = 2;
         gbc.weighty = 1.0;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -97,11 +97,11 @@ public class RegistrarPagamentoMultaPanel extends JPanel {
             Emprestimo emprestimo = emprestimoController.buscarEmprestimoDevolvidoComMulta(codigoObra, matriculaLeitor);
 
             if (emprestimo != null) {
-                emprestimoComMultaEncontrado = emprestimo; // Guarda o empréstimo encontrado
+                emprestimoComMultaEncontrado = emprestimo;
                 labelValorMulta.setText(String.format("Valor da Multa: R$ %.2f (Devolução em: %s)",
                         emprestimo.getMultaAplicada(), emprestimo.getDataDevolucaoReal().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
                 labelValorMulta.setForeground(Color.BLUE);
-                botaoConfirmarPagamento.setEnabled(true); // Habilita o botão de confirmar pagamento
+                botaoConfirmarPagamento.setEnabled(true);
                 mensagemFeedback.setText("Multa pendente encontrada. Selecione o método de pagamento.");
                 mensagemFeedback.setForeground(new Color(0, 128, 0));
             } else {
@@ -133,7 +133,6 @@ public class RegistrarPagamentoMultaPanel extends JPanel {
             int matriculaLeitor = Integer.parseInt(campoMatriculaLeitor.getText());
             String metodoPagamento = (String) comboMetodoPagamento.getSelectedItem();
 
-            // Chama o controller com os parâmetros necessários
             String resultado = emprestimoController.registrarPagamentoMulta(codigoObra, matriculaLeitor, metodoPagamento);
 
             mensagemFeedback.setText(resultado);

@@ -8,7 +8,7 @@ import java.awt.*;
 public class TelaPrincipalView extends JFrame {
 
     private Usuario usuarioLogado;
-    private JPanel painelConteudo; // Onde as telas de funcionalidade serão exibidas
+    private JPanel painelConteudo;
 
     private JButton btnCadastrarObra;
     private JButton btnCadastrarUsuarioSistema;
@@ -16,7 +16,7 @@ public class TelaPrincipalView extends JFrame {
     private JButton btnGerenciarUsuarios;
     private JButton btnEmprestarObra;
     private JButton btnDevolverObra;
-    private JButton btnListarObras; // Botão de listar obras
+    private JButton btnListarObras;
     private JButton btnRegistrarPagamento;
     private JButton btnRelatorios;
     private JButton btnSair;
@@ -25,20 +25,17 @@ public class TelaPrincipalView extends JFrame {
         super("Sistema de Gerenciamento de Biblioteca - " + usuario.getNome() + " (" + usuario.getPerfilAcesso() + ")");
         this.usuarioLogado = usuario;
 
-        // --- Configurações da Janela Principal ---
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // --- Painel Superior (Boas-vindas) ---
         JPanel painelSuperior = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel boasVindasLabel = new JLabel("Bem-vindo(a), " + usuarioLogado.getNome() + "! (" + usuarioLogado.getPerfilAcesso() + ")");
         boasVindasLabel.setFont(new Font("Arial", Font.BOLD, 18));
         painelSuperior.add(boasVindasLabel);
         add(painelSuperior, BorderLayout.NORTH);
 
-        // --- Painel de Menu Lateral ---
         JPanel painelMenu = new JPanel();
         painelMenu.setLayout(new BoxLayout(painelMenu, BoxLayout.Y_AXIS));
         painelMenu.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));

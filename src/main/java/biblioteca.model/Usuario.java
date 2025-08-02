@@ -22,12 +22,10 @@ public class Usuario {
         this.senha = senha;
     }
 
-    //Construtor USUÁRIO DO SISTEMA
     public Usuario(String nome, String login, String telefone, String email, String perfilAcesso, String senha) {
         this(nome, login, 0, "Não se aplica", telefone, email, perfilAcesso, senha);
     }
 
-    //Construtor LEITORES
     public Usuario(String nome, int matricula, String categoriaLeitor, String telefone, String email) {
         this(nome, "", matricula, categoriaLeitor, telefone, email, "Leitor", "");
     }

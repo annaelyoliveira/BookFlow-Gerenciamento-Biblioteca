@@ -1,0 +1,10 @@
+[
+  {
+    "codigo": 123,
+    "titulo": "rete",
+    "autor": "rete",
+    "anoPublicacao": 1233,
+    "status": true,
+    "type": "livro"
+  }
+]

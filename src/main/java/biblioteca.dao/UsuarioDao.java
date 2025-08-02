@@ -6,10 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.GsonBuilder;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,6 +20,15 @@ public class UsuarioDao implements Persistivel<Usuario> {
     private final Gson gsonLeitura = new Gson();
 
     public UsuarioDao() {
+        File diretorio = new File("data");
+        if (!diretorio.exists()) {
+            if (diretorio.mkdirs()) {
+                System.out.println("Diretório 'data' criado no local de execução.");
+            } else {
+                System.err.println("Falha ao criar o diretório 'data'.");
+            }
+        }
+
         this.usuarios = carregarDoArquivo();
     }
 
