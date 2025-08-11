@@ -39,7 +39,7 @@ public class EmprestarObraPanel extends JPanel {
 
         gbc.gridx = 0; gbc.gridy = 2;
         gbc.fill = GridBagConstraints.NONE;
-        add(new JLabel("Matrícula do Usuário:"), gbc);
+        add(new JLabel("Matrícula do Leitor:"), gbc);
         gbc.gridx = 1; gbc.gridy = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
