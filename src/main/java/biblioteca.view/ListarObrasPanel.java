@@ -20,6 +20,7 @@ public class ListarObrasPanel extends JPanel {
     private JTextField campoPesquisa;
     private JComboBox<String> comboTipoPesquisa;
     private JButton botaoPesquisar;
+    private JButton btnExcluirObra;
 
     public ListarObrasPanel() {
         this.obraController = new ObraController();
@@ -32,19 +33,23 @@ public class ListarObrasPanel extends JPanel {
         tituloPagina.setFont(new Font("Arial", Font.BOLD, 24));
         add(tituloPagina, BorderLayout.NORTH);
 
-        JPanel painelPesquisa = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel painelControles = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         campoPesquisa = new JTextField(20);
-        painelPesquisa.add(campoPesquisa);
+        painelControles.add(campoPesquisa);
 
         String[] tiposPesquisa = {"Título", "Autor", "Tipo"};
         comboTipoPesquisa = new JComboBox<>(tiposPesquisa);
-        painelPesquisa.add(comboTipoPesquisa);
+        painelControles.add(comboTipoPesquisa);
 
         botaoPesquisar = new JButton("Pesquisar");
-        painelPesquisa.add(botaoPesquisar);
+        painelControles.add(botaoPesquisar);
 
-        add(painelPesquisa, BorderLayout.NORTH);
+        btnExcluirObra = new JButton("Excluir Obra");
+        btnExcluirObra.setEnabled(false);
+        painelControles.add(btnExcluirObra);
+
+        add(painelControles, BorderLayout.NORTH);
 
         String[] colunas = {"Código", "Título", "Autor", "Ano", "Status", "Tipo", "Prazo Empréstimo",  "Data Empréstimo"};
         modeloTabela = new DefaultTableModel(colunas, 0) {
@@ -56,10 +61,18 @@ public class ListarObrasPanel extends JPanel {
         };
         tabelaObras = new JTable(modeloTabela);
         tabelaObras.setFillsViewportHeight(true);
+        tabelaObras.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && tabelaObras.getSelectedRow() != -1) {
+                btnExcluirObra.setEnabled(true);
+            } else {
+                btnExcluirObra.setEnabled(false);
+            }
+        });
         JScrollPane scrollPane = new JScrollPane(tabelaObras);
         add(scrollPane, BorderLayout.CENTER);
 
         botaoPesquisar.addActionListener(e -> carregarObrasNaTabela());
+        btnExcluirObra.addActionListener(e -> excluirObra()); // Adiciona o listener ao botão
 
         carregarObrasNaTabela();
     }
@@ -112,5 +125,26 @@ public class ListarObrasPanel extends JPanel {
             return "";
         }
         return data.toString();
+    }
+    private void excluirObra() {
+        int linhaSelecionada = tabelaObras.getSelectedRow();
+        if (linhaSelecionada == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione uma obra para excluir.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirmacao = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir esta obra?", "Confirmar Exclusão", JOptionPane.YES_NO_OPTION);
+        if (confirmacao == JOptionPane.YES_OPTION) {
+            int codigoObra = (int) modeloTabela.getValueAt(linhaSelecionada, 0);
+
+            boolean sucesso = obraController.removerObra(codigoObra);
+
+            if (sucesso) {
+                JOptionPane.showMessageDialog(this, "Obra excluída com sucesso.");
+                carregarObrasNaTabela();
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro ao excluir obra.", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 }

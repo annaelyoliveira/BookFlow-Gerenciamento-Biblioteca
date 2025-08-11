@@ -87,4 +87,8 @@ public class ObraController {
         }
         return resultados;
     }
+    public boolean removerObra(int codigoObra) {
+        return obraDao.remover(codigoObra);
+    }
+
 }

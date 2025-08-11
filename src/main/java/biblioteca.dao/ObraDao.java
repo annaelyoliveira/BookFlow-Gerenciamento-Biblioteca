@@ -107,19 +107,16 @@ public class ObraDao implements Persistivel<Obra> {
         return false;
     }
 
-    @Override
-    public boolean remover(int codigo) {
-        Iterator<Obra> iterator = this.obras.iterator();
+    public boolean remover(int codigoObra) {
+        Iterator<Obra> iterator = obras.iterator();
         while (iterator.hasNext()) {
             Obra obra = iterator.next();
-            if (obra.getCodigo() == codigo) {
+            if (obra.getCodigo() == codigoObra) {
                 iterator.remove();
                 salvarNoArquivo();
-                System.out.println("Obra removida com sucesso!");
                 return true;
             }
         }
-        System.out.println("Erro: Obra com código " + codigo + " não encontrada para remoção.");
         return false;
     }
 
