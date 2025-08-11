@@ -43,7 +43,7 @@ public class EmprestimoController {
         }
 
         LocalDate dataEmprestimo = LocalDate.now();
-        LocalDate dataDevolucaoPrevista = dataEmprestimo.plusDays(obra.getTempoEmprestimo());
+        LocalDate dataDevolucaoPrevista = dataEmprestimo.plusDays(obra.calcularPrazoDevolucaoDias());
 
         Emprestimo novoEmprestimo = new Emprestimo(0, obra, usuario, dataEmprestimo, dataDevolucaoPrevista);
         emprestimoDao.adicionar(novoEmprestimo);

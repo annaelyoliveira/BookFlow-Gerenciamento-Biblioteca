@@ -6,7 +6,7 @@ public class Revista extends Obra {
         super(codigo, titulo, autor, anoPublicacao);
     }
 
-    public int getTempoEmprestimo(){
+    public int calcularPrazoDevolucaoDias(){
 
         return 3;
     }

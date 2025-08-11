@@ -1,6 +1,6 @@
 package biblioteca.model;
 
-public abstract class Obra {
+public abstract class Obra implements Emprestavel {
 
     private int codigo;
     private String titulo;
@@ -57,5 +57,21 @@ public abstract class Obra {
         this.status = status;
     }
 
-    public abstract int getTempoEmprestimo();
+    @Override
+    public abstract int calcularPrazoDevolucaoDias();
+
+    @Override
+    public boolean verificarDisponibilidade() {
+        return isStatus();
+    }
+
+    @Override
+    public void emprestar() {
+        setStatus(false);
+    }
+
+    @Override
+    public void devolver() {
+        setStatus(true);
+    }
 }
