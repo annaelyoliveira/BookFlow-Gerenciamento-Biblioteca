@@ -100,7 +100,7 @@ public class ListarObrasPanel extends JPanel {
                     obra.getAnoPublicacao(),
                     status,
                     obra.getClass().getSimpleName(),
-                    obra.getTempoEmprestimo() + " dias",
+                    obra.calcularPrazoDevolucaoDias() + " dias",
                     dataEmprestimoStr,
             };
             modeloTabela.addRow(linha);
